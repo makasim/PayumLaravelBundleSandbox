@@ -11,7 +11,8 @@
 		"phpunit/phpunit": "~4.0",
 		"phpspec/phpspec": "~2.1",
 		"payum/payum-laravel-package": "0.9.*",
-		"payum/payum": "0.9.*"
+		"payum/payum": "0.9.*",
+		"omnipay/stripe": "~2.0"
 	},
 	"autoload": {
 		"classmap": [
