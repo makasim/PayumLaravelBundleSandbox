@@ -11,7 +11,6 @@
 |
 */
 
-Route::get('/', function()
-{
-	return View::make('hello');
-});
+Route::get('/', array('as' => 'payment_examples', 'uses' => 'PaymentController@examples'));
+Route::get('/payment/done', array('as' => 'payment_done', 'uses' => 'PaymentController@done'));
+Route::get('/payment/paypal/express-checkout/prepare', array('as' => 'paypal_es_prepare', 'uses' => 'PaypalController@prepareExpressCheckout'));
