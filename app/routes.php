@@ -15,3 +15,4 @@ Route::get('/', array('as' => 'payment_examples', 'uses' => 'PaymentController@e
 Route::get('/payment/done/{payum_token}', array('as' => 'payment_done', 'uses' => 'PaymentController@done'));
 Route::get('/payment/paypal/express-checkout/prepare', array('as' => 'paypal_es_prepare', 'uses' => 'PaypalController@prepareExpressCheckout'));
 Route::get('/payment/omnipay/stripe/prepare', array('as' => 'omnipay_stripe_prepare', 'uses' => 'OmnipayController@prepareStripe'));
+Route::get('/payment/omnipay/stripe/prepare_obtain_credit_card', array('as' => 'omnipay_stripe_prepare_credit_card', 'uses' => 'OmnipayController@prepareStripeObtainCreditCard'));

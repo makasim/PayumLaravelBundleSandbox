@@ -28,6 +28,20 @@ class OmnipayController extends BaseController
         return $captureController->doAction($captureToken);
 	}
 
+    public function prepareStripeObtainCreditCard()
+    {
+        $storage = $this->getPayum()->getStorage('Payum\Core\Model\ArrayObject');
+
+        $details = $storage->createModel();
+        $details['amount'] = '10.00';
+        $details['currency'] = 'USD';
+        $storage->updateModel($details);
+
+        $captureToken = $this->getTokenFactory()->createCaptureToken('omnipay_stripe', $details, 'payment_done');
+
+        return \Redirect::to($captureToken->getTargetUrl());
+    }
+
     /**
      * @return \Payum\Core\Registry\RegistryInterface
      */
