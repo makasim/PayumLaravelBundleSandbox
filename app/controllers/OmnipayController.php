@@ -22,7 +22,7 @@ class OmnipayController extends BaseController
         ));
         $storage->updateModel($details);
 
-        $captureToken = $this->getTokenFactory()->createCaptureToken('omnipay_stripe', $details, 'payment_done');
+        $captureToken = $this->getTokenFactory()->createCaptureToken('stripe_direct', $details, 'payment_done');
 
         $captureController = new CaptureController;
         return $captureController->doAction($captureToken);
@@ -37,7 +37,7 @@ class OmnipayController extends BaseController
         $details['currency'] = 'USD';
         $storage->updateModel($details);
 
-        $captureToken = $this->getTokenFactory()->createCaptureToken('omnipay_stripe', $details, 'payment_done');
+        $captureToken = $this->getTokenFactory()->createCaptureToken('stripe_direct', $details, 'payment_done');
 
         return \Redirect::to($captureToken->getTargetUrl());
     }
