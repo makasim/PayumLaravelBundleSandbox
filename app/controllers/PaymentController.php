@@ -1,7 +1,7 @@
 <?php
 
 use Payum\Core\Registry\RegistryInterface;
-use Payum\Core\Request\SimpleStatusRequest;
+use Payum\Core\Request\GetHumanStatus;
 use Payum\Core\Security\HttpRequestVerifierInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -20,8 +20,9 @@ class PaymentController extends BaseController
 
         $token = $this->getHttpRequestVerifier()->verify($request);
 
-        $status = new SimpleStatusRequest($token);
-        $this->getPayum()->getPayment($token->getPaymentName())->execute($status);
+        $payment = $this->getPayum()->getPayment($token->getPaymentName());
+
+        $payment->execute($status = new GetHumanStatus($token));
 
         return \Response::json(array(
             'status' => $status->getStatus(),
