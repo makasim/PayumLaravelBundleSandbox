@@ -9,7 +9,7 @@ class OmnipayController extends BaseController
 	{
         $storage = $this->getPayum()->getStorage('Payum\Core\Model\ArrayObject');
 
-        $details = $storage->createModel();
+        $details = $storage->create();
         $details['amount'] = '10.00';
         $details['currency'] = 'USD';
         $details['card'] = new SensitiveValue(array(
@@ -20,7 +20,7 @@ class OmnipayController extends BaseController
             'firstName' => 'foo',
             'lastName' => 'bar',
         ));
-        $storage->updateModel($details);
+        $storage->update($details);
 
         $captureToken = $this->getTokenFactory()->createCaptureToken('stripe_direct', $details, 'payment_done');
 
@@ -32,10 +32,10 @@ class OmnipayController extends BaseController
     {
         $storage = $this->getPayum()->getStorage('Payum\Core\Model\ArrayObject');
 
-        $details = $storage->createModel();
+        $details = $storage->create();
         $details['amount'] = '10.00';
         $details['currency'] = 'USD';
-        $storage->updateModel($details);
+        $storage->update($details);
 
         $captureToken = $this->getTokenFactory()->createCaptureToken('stripe_direct', $details, 'payment_done');
 

@@ -6,15 +6,15 @@ class PaypalController extends BaseController
 	{
         $storage = $this->getPayum()->getStorage('Payum\Core\Model\ArrayObject');
 
-        $details = $storage->createModel();
+        $details = $storage->create();
         $details['PAYMENTREQUEST_0_CURRENCYCODE'] = 'EUR';
         $details['PAYMENTREQUEST_0_AMT'] = 1.23;
-        $storage->updateModel($details);
+        $storage->update($details);
 
-        $captureToken = $this->getTokenFactory()->createCaptureToken('paypal_es', $details, 'payment_done');
+        $captureToken = $this->getTokenFactory()->createCaptureToken('paypal_ec', $details, 'payment_done');
         $details['RETURNURL'] = $captureToken->getTargetUrl();
         $details['CANCELURL'] = $captureToken->getTargetUrl();
-        $storage->updateModel($details);
+        $storage->update($details);
 
         return \Redirect::to($captureToken->getTargetUrl());
 	}

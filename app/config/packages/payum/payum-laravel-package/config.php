@@ -1,62 +1,51 @@
 <?php
 
-use Buzz\Client\Curl;
-use Omnipay\Common\GatewayFactory;
 use Payum\Core\Storage\FilesystemStorage;
 use Payum\LaravelPackage\Action\GetHttpRequestAction;
 use Payum\LaravelPackage\Action\ObtainCreditCardAction;
-use Payum\Paypal\ExpressCheckout\Nvp\Api;
-use Payum\Paypal\ExpressCheckout\Nvp\PaymentFactory as PaypalPaymentFactory;
-use Payum\Stripe\Keys;
-use Payum\Stripe\PaymentFactory as StripePaymentFactory;
-use Payum\OmnipayBridge\PaymentFactory as OmnipayPaymentFactory;
 
 $detailsClass = 'Payum\Core\Model\ArrayObject';
 $tokenClass = 'Payum\Core\Model\Token';
 
 $getHttpRequestAction = new GetHttpRequestAction();
+$obtainCreditCardAction = new ObtainCreditCardAction();
 
-// Stripe Payment
-$gatewayFactory = new GatewayFactory;
-$gatewayFactory->find();
 
-$stripeGateway = $gatewayFactory->create('Stripe');
-$stripeGateway->setApiKey($_SERVER['payum.stripe.secret_key']);
-$stripeGateway->setTestMode(true);
-
-$stripePayment = OmnipayPaymentFactory::create($stripeGateway);
-$stripePayment->addAction(new ObtainCreditCardAction);
-
-$stripeJsPayment = StripePaymentFactory::createJs(new Keys(
-    $_SERVER['payum.stripe.publishable_key'],
-    $_SERVER['payum.stripe.secret_key']
-));
-$stripeJsPayment->addAction($getHttpRequestAction);
-
-$stripeCheckoutPayment = StripePaymentFactory::createCheckout(new Keys(
-    $_SERVER['payum.stripe.publishable_key'],
-    $_SERVER['payum.stripe.secret_key']
-));
-$stripeCheckoutPayment->addAction($getHttpRequestAction);
-
-// Paypal Payment
-
-$paypalPayment = PaypalPaymentFactory::create(new Api(new Curl, array(
-    'username' => $_SERVER['payum.paypal_express_checkout.username'],
-    'password' => $_SERVER['payum.paypal_express_checkout.password'],
-    'signature' => $_SERVER['payum.paypal_express_checkout.signature'],
-    'sandbox' => true
-)));
+$omnipayDirectPaymentFactory = new \Payum\OmnipayBridge\DirectPaymentFactory();
+$stripeJsPaymentFactory = new \Payum\Stripe\JsPaymentFactory();
+$stripeCheckoutPaymentFactory = new \Payum\Stripe\CheckoutPaymentFactory();
+$paypalExpressCheckoutPaymentFactory = new \Payum\Paypal\ExpressCheckout\Nvp\PaymentFactory();
 
 return array(
     // You can pass on object or a service id from container.
     'token_storage' => new FilesystemStorage(__DIR__.'/../../../../storage/payments', $tokenClass, 'hash'),
     'payments' => array(
         // Put here any payment you want too, omnipay, payex, paypa, be2bill or any other. Here's example of paypal and stripe:
-        'paypal_es' => $paypalPayment,
-        'stripe_js' => $stripeJsPayment,
-        'stripe_checkout' => $stripeCheckoutPayment,
-        'stripe_direct' => $stripePayment,
+        'paypal_ec' => $paypalExpressCheckoutPaymentFactory->create(array(
+            'username' => $_SERVER['payum.paypal_express_checkout.username'],
+            'password' => $_SERVER['payum.paypal_express_checkout.password'],
+            'signature' => $_SERVER['payum.paypal_express_checkout.signature'],
+            'sandbox' => true
+        )),
+        'stripe_js' => $stripeJsPaymentFactory->create(array(
+            'publishable_key' => $_SERVER['payum.stripe.publishable_key'],
+            'secret_key' => $_SERVER['payum.stripe.secret_key'],
+            'payum.action.get_http_request' => $getHttpRequestAction,
+        )),
+        'stripe_checkout' => $stripeCheckoutPaymentFactory->create(array(
+            'publishable_key' => $_SERVER['payum.stripe.publishable_key'],
+            'secret_key' => $_SERVER['payum.stripe.secret_key'],
+            'payum.action.get_http_request' => $getHttpRequestAction,
+        )),
+        'stripe_direct' => $omnipayDirectPaymentFactory->create(array(
+            'type' => 'Stripe',
+            'options' => array(
+                'apiKey' => $_SERVER['payum.stripe.secret_key'],
+                'testMode' => true,
+            ),
+            'payum.action.get_http_request' => $getHttpRequestAction,
+            'payum.action.obtain_credit_card' => $obtainCreditCardAction
+        )),
     ),
     'storages' => array(
         $detailsClass => new FilesystemStorage(__DIR__.'/../../../../storage/payments', $detailsClass),

@@ -6,11 +6,11 @@ class StripeController extends BaseController
 	{
         $storage = $this->getPayum()->getStorage('Payum\Core\Model\ArrayObject');
 
-        $details = $storage->createModel();
+        $details = $storage->create();
         $details['amount'] = '100';
         $details['currency'] = 'USD';
         $details['description'] = 'a desc';
-        $storage->updateModel($details);
+        $storage->update($details);
 
         $captureToken = $this->getTokenFactory()->createCaptureToken('stripe_js', $details, 'payment_done');
 
@@ -21,11 +21,11 @@ class StripeController extends BaseController
     {
         $storage = $this->getPayum()->getStorage('Payum\Core\Model\ArrayObject');
 
-        $details = $storage->createModel();
+        $details = $storage->create();
         $details['amount'] = '100';
         $details['currency'] = 'USD';
         $details['description'] = 'a desc';
-        $storage->updateModel($details);
+        $storage->update($details);
 
         $captureToken = $this->getTokenFactory()->createCaptureToken('stripe_checkout', $details, 'payment_done');
 
