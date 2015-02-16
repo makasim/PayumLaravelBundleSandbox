@@ -3,6 +3,7 @@
 use Payum\Core\Storage\FilesystemStorage;
 use Payum\LaravelPackage\Action\GetHttpRequestAction;
 use Payum\LaravelPackage\Action\ObtainCreditCardAction;
+use Payum\LaravelPackage\Storage\EloquentStorage;
 
 $detailsClass = 'Payum\Core\Model\ArrayObject';
 $tokenClass = 'Payum\Core\Model\Token';
@@ -18,10 +19,17 @@ $paypalExpressCheckoutPaymentFactory = new \Payum\Paypal\ExpressCheckout\Nvp\Pay
 
 return array(
     // You can pass on object or a service id from container.
-    'token_storage' => new FilesystemStorage(__DIR__.'/../../../../storage/payments', $tokenClass, 'hash'),
+//    'token_storage' => new FilesystemStorage(__DIR__.'/../../../../storage/payments', $tokenClass, 'hash'),
+    'token_storage' => new EloquentStorage('Payum\LaravelPackage\Model\Token'),
     'payments' => array(
         // Put here any payment you want too, omnipay, payex, paypa, be2bill or any other. Here's example of paypal and stripe:
         'paypal_ec' => $paypalExpressCheckoutPaymentFactory->create(array(
+            'username' => $_SERVER['payum.paypal_express_checkout.username'],
+            'password' => $_SERVER['payum.paypal_express_checkout.password'],
+            'signature' => $_SERVER['payum.paypal_express_checkout.signature'],
+            'sandbox' => true
+        )),
+        'paypal_ec_plus_eloquent' => $paypalExpressCheckoutPaymentFactory->create(array(
             'username' => $_SERVER['payum.paypal_express_checkout.username'],
             'password' => $_SERVER['payum.paypal_express_checkout.password'],
             'signature' => $_SERVER['payum.paypal_express_checkout.signature'],
@@ -47,7 +55,9 @@ return array(
             'payum.action.obtain_credit_card' => $obtainCreditCardAction
         )),
     ),
+
     'storages' => array(
+        'Payum\LaravelPackage\Model\Order' => new EloquentStorage('Payum\LaravelPackage\Model\Order'),
         $detailsClass => new FilesystemStorage(__DIR__.'/../../../../storage/payments', $detailsClass),
     )
 );
