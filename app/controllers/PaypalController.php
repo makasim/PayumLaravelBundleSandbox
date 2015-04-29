@@ -18,9 +18,9 @@ class PaypalController extends BaseController
 
     public function prepareExpressCheckoutPlusEloquent()
     {
-        $storage = $this->getPayum()->getStorage('Payum\LaravelPackage\Model\Order');
+        $storage = $this->getPayum()->getStorage('Payum\LaravelPackage\Model\Payment');
 
-        /** @var \Payum\LaravelPackage\Model\Order $order */
+        /** @var \Payum\LaravelPackage\Model\Payment $order */
         $order = $storage->create();
         $order->setCurrencyCode('EUR');
         $order->setTotalAmount(1.23);

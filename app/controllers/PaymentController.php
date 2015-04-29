@@ -3,14 +3,14 @@
 use Payum\Core\Registry\RegistryInterface;
 use Payum\Core\Request\GetHumanStatus;
 use Payum\Core\Security\HttpRequestVerifierInterface;
-use Payum\LaravelPackage\Model\Order;
+use Payum\LaravelPackage\Model\Payment;
 use Symfony\Component\HttpFoundation\Request;
 
 class PaymentController extends BaseController
 {
 	public function examples()
 	{
-//        \Schema::create('payum_orders', function($table) {
+//        \Schema::create('payum_payments', function($table) {
 //            /** @var \Illuminate\Database\Schema\Blueprint $table */
 //            $table->bigIncrements('id');
 //            $table->text('details');
@@ -20,7 +20,6 @@ class PaymentController extends BaseController
 //            $table->string('clientEmail');
 //            $table->string('totalAmount');
 //            $table->string('currencyCode');
-//            $table->string('currencyDigitsAfterDecimalPoint');
 //            $table->timestamps();
 //        });
 //        \Schema::create('payum_tokens', function($table) {
@@ -29,7 +28,7 @@ class PaymentController extends BaseController
 //            $table->text('details');
 //            $table->string('targetUrl');
 //            $table->string('afterUrl');
-//            $table->string('paymentName');
+//            $table->string('gatewayName');
 //            $table->timestamps();
 //        });
 
@@ -44,9 +43,9 @@ class PaymentController extends BaseController
 
         $token = $this->getHttpRequestVerifier()->verify($request);
 
-        $payment = $this->getPayum()->getPayment($token->getPaymentName());
+        $gateway = $this->getPayum()->getGateway($token->getGatewayName());
 
-        $payment->execute($status = new GetHumanStatus($token));
+        $gateway->execute($status = new GetHumanStatus($token));
 
         return \Response::json(array(
             'status' => $status->getValue(),
@@ -62,26 +61,25 @@ class PaymentController extends BaseController
 
         $token = $this->getHttpRequestVerifier()->verify($request);
 
-        $payment = $this->getPayum()->getPayment($token->getPaymentName());
+        $gateway = $this->getPayum()->getGateway($token->getGatewayName());
 
-        $payment->execute($status = new GetHumanStatus($token));
+        $gateway->execute($status = new GetHumanStatus($token));
 
-        /** @var Order $order */
-        $order = $status->getFirstModel();
+        /** @var Payment $payment */
+        $payment = $status->getFirstModel();
 
         return \Response::json(array(
-            'status' => $status->getValue(),
-            'order' => array(
+            'payment' => array(
+                'status' => $status->getValue(),
                 'client' => array(
-                    'id' => $order->getClientId(),
-                    'email' => $order->getClientEmail(),
+                    'id' => $payment->getClientId(),
+                    'email' => $payment->getClientEmail(),
                 ),
-                'number' => $order->getNumber(),
-                'description' => $order->getCurrencyCode(),
-                'total_amount' => $order->getTotalAmount(),
-                'currency_code' => $order->getCurrencyCode(),
-                'currency_digits_after_decimal_point' => $order->getCurrencyDigitsAfterDecimalPoint(),
-                'details' => $order->getDetails(),
+                'number' => $payment->getNumber(),
+                'description' => $payment->getCurrencyCode(),
+                'total_amount' => $payment->getTotalAmount(),
+                'currency_code' => $payment->getCurrencyCode(),
+                'details' => $payment->getDetails(),
             ),
         ));
     }

@@ -12,40 +12,40 @@ $getHttpRequestAction = new GetHttpRequestAction();
 $obtainCreditCardAction = new ObtainCreditCardAction();
 
 
-$omnipayDirectPaymentFactory = new \Payum\OmnipayBridge\DirectPaymentFactory();
-$stripeJsPaymentFactory = new \Payum\Stripe\JsPaymentFactory();
-$stripeCheckoutPaymentFactory = new \Payum\Stripe\CheckoutPaymentFactory();
-$paypalExpressCheckoutPaymentFactory = new \Payum\Paypal\ExpressCheckout\Nvp\PaymentFactory();
+$omnipayDirectGatewayFactory = new \Payum\OmnipayBridge\OmnipayDirectGatewayFactory();
+$stripeJsGatewayFactory = new \Payum\Stripe\StripeJsGatewayFactory();
+$stripeCheckoutGatewayFactory = new \Payum\Stripe\StripeCheckoutGatewayFactory();
+$paypalExpressCheckoutGatewayFactory = new \Payum\Paypal\ExpressCheckout\Nvp\PaypalExpressCheckoutGatewayFactory();
 
 return array(
     // You can pass on object or a service id from container.
 //    'token_storage' => new FilesystemStorage(__DIR__.'/../../../../storage/payments', $tokenClass, 'hash'),
     'token_storage' => new EloquentStorage('Payum\LaravelPackage\Model\Token'),
-    'payments' => array(
-        // Put here any payment you want too, omnipay, payex, paypa, be2bill or any other. Here's example of paypal and stripe:
-        'paypal_ec' => $paypalExpressCheckoutPaymentFactory->create(array(
+    'gateways' => array(
+        // Put here any gateway you want too, omnipay, payex, paypa, be2bill or any other. Here's example of paypal and stripe:
+        'paypal_ec' => $paypalExpressCheckoutGatewayFactory->create(array(
             'username' => $_SERVER['payum.paypal_express_checkout.username'],
             'password' => $_SERVER['payum.paypal_express_checkout.password'],
             'signature' => $_SERVER['payum.paypal_express_checkout.signature'],
             'sandbox' => true
         )),
-        'paypal_ec_plus_eloquent' => $paypalExpressCheckoutPaymentFactory->create(array(
+        'paypal_ec_plus_eloquent' => $paypalExpressCheckoutGatewayFactory->create(array(
             'username' => $_SERVER['payum.paypal_express_checkout.username'],
             'password' => $_SERVER['payum.paypal_express_checkout.password'],
             'signature' => $_SERVER['payum.paypal_express_checkout.signature'],
             'sandbox' => true
         )),
-        'stripe_js' => $stripeJsPaymentFactory->create(array(
+        'stripe_js' => $stripeJsGatewayFactory->create(array(
             'publishable_key' => $_SERVER['payum.stripe.publishable_key'],
             'secret_key' => $_SERVER['payum.stripe.secret_key'],
             'payum.action.get_http_request' => $getHttpRequestAction,
         )),
-        'stripe_checkout' => $stripeCheckoutPaymentFactory->create(array(
+        'stripe_checkout' => $stripeCheckoutGatewayFactory->create(array(
             'publishable_key' => $_SERVER['payum.stripe.publishable_key'],
             'secret_key' => $_SERVER['payum.stripe.secret_key'],
             'payum.action.get_http_request' => $getHttpRequestAction,
         )),
-        'stripe_direct' => $omnipayDirectPaymentFactory->create(array(
+        'stripe_direct' => $omnipayDirectGatewayFactory->create(array(
             'type' => 'Stripe',
             'options' => array(
                 'apiKey' => $_SERVER['payum.stripe.secret_key'],
@@ -57,7 +57,7 @@ return array(
     ),
 
     'storages' => array(
-        'Payum\LaravelPackage\Model\Order' => new EloquentStorage('Payum\LaravelPackage\Model\Order'),
+        'Payum\LaravelPackage\Model\Payment' => new EloquentStorage('Payum\LaravelPackage\Model\Payment'),
         $detailsClass => new FilesystemStorage(__DIR__.'/../../../../storage/payments', $detailsClass),
     )
 );
