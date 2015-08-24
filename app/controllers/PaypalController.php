@@ -23,7 +23,7 @@ class PaypalController extends BaseController
         /** @var \Payum\LaravelPackage\Model\Payment $order */
         $order = $storage->create();
         $order->setCurrencyCode('EUR');
-        $order->setTotalAmount(1.23);
+        $order->setTotalAmount(123);
         $storage->update($order);
 
         $captureToken = $this->getTokenFactory()->createCaptureToken('paypal_ec_plus_eloquent', $order, 'payment_done_order');

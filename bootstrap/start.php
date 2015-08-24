@@ -11,6 +11,8 @@
 |
 */
 
+use Payum\Core\Bridge\Symfony\Action\ObtainCreditCardAction;
+
 $app = new Illuminate\Foundation\Application;
 
 /*
@@ -26,7 +28,7 @@ $app = new Illuminate\Foundation\Application;
 
 $env = $app->detectEnvironment(array(
 
-	'local' => array('homestead'),
+	'local' => array('dev.payum-laravel-bundle-sandbox.com'),
 
 ));
 
@@ -69,5 +71,51 @@ require $framework.'/Illuminate/Foundation/start.php';
 | from the actual running of the application and sending responses.
 |
 */
+
+
+\App::bind('acme_payment.gateway.paypal_express_checkout', function($app) {
+    /** @var \Payum\Core\Registry\RegistryInterface $payum */
+    $payum = $app['payum'];
+
+    return $payum->getGatewayFactory('paypal_express_checkout')->create([
+        'username' => $_SERVER['payum.paypal_express_checkout.username'],
+        'password' => $_SERVER['payum.paypal_express_checkout.password'],
+        'signature' => $_SERVER['payum.paypal_express_checkout.signature'],
+        'sandbox' => true
+    ]);
+});
+
+\App::bind('acme_payment.gateway.stripe_js', function($app) {
+    /** @var \Payum\Core\Registry\RegistryInterface $payum */
+    $payum = $app['payum'];
+
+    return $payum->getGatewayFactory('stripe_js')->create([
+        'publishable_key' => $_SERVER['payum.stripe.publishable_key'],
+        'secret_key' => $_SERVER['payum.stripe.secret_key'],
+    ]);
+});
+
+\App::bind('acme_payment.gateway.stripe_checkout', function($app) {
+    /** @var \Payum\Core\Registry\RegistryInterface $payum */
+    $payum = $app['payum'];
+
+    return $payum->getGatewayFactory('stripe_checkout')->create([
+        'publishable_key' => $_SERVER['payum.stripe.publishable_key'],
+        'secret_key' => $_SERVER['payum.stripe.secret_key'],
+    ]);
+});
+
+\App::bind('acme_payment.gateway.stripe_omnipay', function($app) {
+    /** @var \Payum\Core\Registry\RegistryInterface $payum */
+    $payum = $app['payum'];
+
+    return $payum->getGatewayFactory('omnipay_direct')->create([
+        'type' => 'Stripe',
+        'options' => array(
+            'apiKey' => $_SERVER['payum.stripe.secret_key'],
+            'testMode' => true,
+        ),
+    ]);
+});
 
 return $app;
