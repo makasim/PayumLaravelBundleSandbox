@@ -30,6 +30,14 @@ class PaymentController extends PayumController
 //            $table->string('gatewayName');
 //            $table->timestamps();
 //        });
+//        \Schema::create('payum_gateway_configs', function($table) {
+//            /** @var \Illuminate\Database\Schema\Blueprint $table */
+//            $table->bigIncrements('id');
+//            $table->text('config');
+//            $table->string('factoryName');
+//            $table->string('gatewayName');
+//            $table->timestamps();
+//        });
 
 		return \View::make('payment_examples');
 	}

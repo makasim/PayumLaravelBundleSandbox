@@ -16,6 +16,7 @@ Route::get('/payment/done/{payum_token}', array('as' => 'payment_done', 'uses' =
 Route::get('/payment/done-order/{payum_token}', array('as' => 'payment_done_order', 'uses' => 'PaymentController@doneOrder'));
 Route::get('/payment/paypal/express-checkout/prepare', array('as' => 'paypal_ec_prepare', 'uses' => 'PaypalController@prepareExpressCheckout'));
 Route::get('/payment/paypal/express-checkout/prepare-plus-eloquent', array('as' => 'paypal_ec_prepare_plus_eloquent', 'uses' => 'PaypalController@prepareExpressCheckoutPlusEloquent'));
+Route::get('/payment/paypal/express-checkout/prepare-stored-in-database', array('as' => 'paypal_ec_stored_in_database', 'uses' => 'PaypalController@prepareExpressCheckoutStoredInDatabase'));
 Route::get('/payment/stripe/js/prepare', array('as' => 'omnipay_stripe_js_prepare', 'uses' => 'StripeController@prepareJs'));
 Route::get('/payment/stripe/checkout/prepare', array('as' => 'omnipay_stripe_checkout_prepare', 'uses' => 'StripeController@prepareCheckout'));
 Route::get('/payment/stripe/direct/prepare', array('as' => 'omnipay_stripe_prepare', 'uses' => 'OmnipayController@prepareStripe'));

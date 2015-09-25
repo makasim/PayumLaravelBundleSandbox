@@ -11,6 +11,7 @@
 |
 */
 
+use Payum\LaravelPackage\Model\GatewayConfig;
 use Payum\LaravelPackage\Model\Payment;
 
 $app = new Illuminate\Foundation\Application;
@@ -105,6 +106,8 @@ App::resolving('payum.builder', function(\Payum\Core\PayumBuilder $payumBuilder)
         ])
 
         ->addStorage(Payment::class, new \Payum\LaravelPackage\Storage\EloquentStorage(Payment::class))
+
+        ->setGatewayConfigStorage(new \Payum\LaravelPackage\Storage\EloquentStorage(GatewayConfig::class))
     ;
 });
 

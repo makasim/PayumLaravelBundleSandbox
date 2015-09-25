@@ -32,4 +32,18 @@ class PaypalController extends PayumController
 
         return \Redirect::to($captureToken->getTargetUrl());
     }
+
+    public function prepareExpressCheckoutStoredInDatabase()
+    {
+        $storage = $this->getPayum()->getStorage('Payum\Core\Model\ArrayObject');
+
+        $details = $storage->create();
+        $details['PAYMENTREQUEST_0_CURRENCYCODE'] = 'EUR';
+        $details['PAYMENTREQUEST_0_AMT'] = 1.23;
+        $storage->update($details);
+
+        $captureToken = $this->getPayum()->getTokenFactory()->createCaptureToken('paypal_ec_stored_in_database', $details, 'payment_done_order');
+
+        return \Redirect::to($captureToken->getTargetUrl());
+    }
 }
