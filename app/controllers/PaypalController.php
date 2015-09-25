@@ -1,6 +1,8 @@
 <?php
 
-class PaypalController extends BaseController
+use Payum\LaravelPackage\Controller\PayumController;
+
+class PaypalController extends PayumController
 {
 	public function prepareExpressCheckout()
 	{
@@ -11,7 +13,7 @@ class PaypalController extends BaseController
         $details['PAYMENTREQUEST_0_AMT'] = 1.23;
         $storage->update($details);
 
-        $captureToken = $this->getTokenFactory()->createCaptureToken('paypal_ec', $details, 'payment_done');
+        $captureToken = $this->getPayum()->getTokenFactory()->createCaptureToken('paypal_ec', $details, 'payment_done');
 
         return \Redirect::to($captureToken->getTargetUrl());
 	}
@@ -20,30 +22,14 @@ class PaypalController extends BaseController
     {
         $storage = $this->getPayum()->getStorage('Payum\LaravelPackage\Model\Payment');
 
-        /** @var \Payum\LaravelPackage\Model\Payment $order */
-        $order = $storage->create();
-        $order->setCurrencyCode('EUR');
-        $order->setTotalAmount(123);
-        $storage->update($order);
+        /** @var \Payum\LaravelPackage\Model\Payment $payment */
+        $payment = $storage->create();
+        $payment->setCurrencyCode('EUR');
+        $payment->setTotalAmount(123);
+        $storage->update($payment);
 
-        $captureToken = $this->getTokenFactory()->createCaptureToken('paypal_ec_plus_eloquent', $order, 'payment_done_order');
+        $captureToken = $this->getPayum()->getTokenFactory()->createCaptureToken('paypal_ec', $payment, 'payment_done_order');
 
         return \Redirect::to($captureToken->getTargetUrl());
-    }
-
-    /**
-     * @return \Payum\Core\Registry\RegistryInterface
-     */
-    protected function getPayum()
-    {
-        return \App::make('payum');
-    }
-
-    /**
-     * @return \Payum\Core\Security\GenericTokenFactoryInterface
-     */
-    protected function getTokenFactory()
-    {
-        return \App::make('payum.security.token_factory');
     }
 }

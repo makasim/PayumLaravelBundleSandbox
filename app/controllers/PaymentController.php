@@ -1,12 +1,11 @@
 <?php
 
-use Payum\Core\Registry\RegistryInterface;
 use Payum\Core\Request\GetHumanStatus;
-use Payum\Core\Security\HttpRequestVerifierInterface;
+use Payum\LaravelPackage\Controller\PayumController;
 use Payum\LaravelPackage\Model\Payment;
 use Symfony\Component\HttpFoundation\Request;
 
-class PaymentController extends BaseController
+class PaymentController extends PayumController
 {
 	public function examples()
 	{
@@ -41,7 +40,7 @@ class PaymentController extends BaseController
         $request = \App::make('request');
         $request->attributes->set('payum_token', $payum_token);
 
-        $token = $this->getHttpRequestVerifier()->verify($request);
+        $token = $this->getPayum()->getHttpRequestVerifier()->verify($request);
 
         $gateway = $this->getPayum()->getGateway($token->getGatewayName());
 
@@ -59,7 +58,7 @@ class PaymentController extends BaseController
         $request = \App::make('request');
         $request->attributes->set('payum_token', $payum_token);
 
-        $token = $this->getHttpRequestVerifier()->verify($request);
+        $token = $this->getPayum()->getHttpRequestVerifier()->verify($request);
 
         $gateway = $this->getPayum()->getGateway($token->getGatewayName());
 
@@ -82,21 +81,5 @@ class PaymentController extends BaseController
                 'details' => $payment->getDetails(),
             ),
         ));
-    }
-
-    /**
-     * @return RegistryInterface
-     */
-    protected function getPayum()
-    {
-        return \App::make('payum');
-    }
-
-    /**
-     * @return HttpRequestVerifierInterface
-     */
-    protected function getHttpRequestVerifier()
-    {
-        return \App::make('payum.security.http_request_verifier');
     }
 }

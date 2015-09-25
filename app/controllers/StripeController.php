@@ -1,6 +1,8 @@
 <?php
 
-class StripeController extends BaseController
+use Payum\LaravelPackage\Controller\PayumController;
+
+class StripeController extends PayumController
 {
 	public function prepareJs()
 	{
@@ -12,7 +14,7 @@ class StripeController extends BaseController
         $details['description'] = 'a desc';
         $storage->update($details);
 
-        $captureToken = $this->getTokenFactory()->createCaptureToken('stripe_js', $details, 'payment_done');
+        $captureToken = $this->getPayum()->getTokenFactory()->createCaptureToken('stripe_js', $details, 'payment_done');
 
         return \Redirect::to($captureToken->getTargetUrl());
 	}
@@ -27,24 +29,8 @@ class StripeController extends BaseController
         $details['description'] = 'a desc';
         $storage->update($details);
 
-        $captureToken = $this->getTokenFactory()->createCaptureToken('stripe_checkout', $details, 'payment_done');
+        $captureToken = $this->getPayum()->getTokenFactory()->createCaptureToken('stripe_checkout', $details, 'payment_done');
 
         return \Redirect::to($captureToken->getTargetUrl());
-    }
-
-    /**
-     * @return \Payum\Core\Registry\RegistryInterface
-     */
-    protected function getPayum()
-    {
-        return \App::make('payum');
-    }
-
-    /**
-     * @return \Payum\Core\Security\GenericTokenFactoryInterface
-     */
-    protected function getTokenFactory()
-    {
-        return \App::make('payum.security.token_factory');
     }
 }

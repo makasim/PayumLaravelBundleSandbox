@@ -2,8 +2,9 @@
 
 use Payum\Core\Security\SensitiveValue;
 use Payum\LaravelPackage\Controller\CaptureController;
+use Payum\LaravelPackage\Controller\PayumController;
 
-class OmnipayController extends BaseController
+class OmnipayController extends PayumController
 {
 	public function prepareStripe()
 	{
@@ -22,7 +23,7 @@ class OmnipayController extends BaseController
         ));
         $storage->update($details);
 
-        $captureToken = $this->getTokenFactory()->createCaptureToken('stripe_direct', $details, 'payment_done');
+        $captureToken = $this->getPayum()->getTokenFactory()->createCaptureToken('stripe_direct', $details, 'payment_done');
 
         $captureController = new CaptureController;
         return $captureController->doAction($captureToken);
@@ -37,24 +38,8 @@ class OmnipayController extends BaseController
         $details['currency'] = 'USD';
         $storage->update($details);
 
-        $captureToken = $this->getTokenFactory()->createCaptureToken('stripe_direct', $details, 'payment_done');
+        $captureToken = $this->getPayum()->getTokenFactory()->createCaptureToken('stripe_direct', $details, 'payment_done');
 
         return \Redirect::to($captureToken->getTargetUrl());
-    }
-
-    /**
-     * @return \Payum\Core\Registry\RegistryInterface
-     */
-    protected function getPayum()
-    {
-        return \App::make('payum');
-    }
-
-    /**
-     * @return \Payum\Core\Security\GenericTokenFactoryInterface
-     */
-    protected function getTokenFactory()
-    {
-        return \App::make('payum.security.token_factory');
     }
 }

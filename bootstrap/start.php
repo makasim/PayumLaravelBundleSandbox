@@ -11,7 +11,7 @@
 |
 */
 
-use Payum\Core\Bridge\Symfony\Action\ObtainCreditCardAction;
+use Payum\LaravelPackage\Model\Payment;
 
 $app = new Illuminate\Foundation\Application;
 
@@ -72,50 +72,40 @@ require $framework.'/Illuminate/Foundation/start.php';
 |
 */
 
+App::resolving('payum.builder', function(\Payum\Core\PayumBuilder $payumBuilder) {
+    $payumBuilder
+        // this method registers filesystem storages, consider to change them to something more
+        // sophisticated, like eloquent storage
+        ->addDefaultStorages()
 
-\App::bind('acme_payment.gateway.paypal_express_checkout', function($app) {
-    /** @var \Payum\Core\Registry\RegistryInterface $payum */
-    $payum = $app['payum'];
+        ->addGateway('paypal_ec', [
+            'factory' => 'paypal_express_checkout',
+            'username' => $_SERVER['payum.paypal_express_checkout.username'],
+            'password' => $_SERVER['payum.paypal_express_checkout.password'],
+            'signature' => $_SERVER['payum.paypal_express_checkout.signature'],
+            'sandbox' => true
+        ])
+        ->addGateway('stripe_js', [
+            'factory' => 'stripe_js',
+            'publishable_key' => $_SERVER['payum.stripe.publishable_key'],
+            'secret_key' => $_SERVER['payum.stripe.secret_key'],
+        ])
+        ->addGateway('stripe_checkout', [
+            'factory' => 'stripe_checkout',
+            'publishable_key' => $_SERVER['payum.stripe.publishable_key'],
+            'secret_key' => $_SERVER['payum.stripe.secret_key'],
+        ])
+        ->addGateway('stripe_direct', [
+            'factory' => 'omnipay_direct',
+            'type' => 'Stripe',
+            'options' => array(
+                'apiKey' => $_SERVER['payum.stripe.secret_key'],
+                'testMode' => true,
+            ),
+        ])
 
-    return $payum->getGatewayFactory('paypal_express_checkout')->create([
-        'username' => $_SERVER['payum.paypal_express_checkout.username'],
-        'password' => $_SERVER['payum.paypal_express_checkout.password'],
-        'signature' => $_SERVER['payum.paypal_express_checkout.signature'],
-        'sandbox' => true
-    ]);
-});
-
-\App::bind('acme_payment.gateway.stripe_js', function($app) {
-    /** @var \Payum\Core\Registry\RegistryInterface $payum */
-    $payum = $app['payum'];
-
-    return $payum->getGatewayFactory('stripe_js')->create([
-        'publishable_key' => $_SERVER['payum.stripe.publishable_key'],
-        'secret_key' => $_SERVER['payum.stripe.secret_key'],
-    ]);
-});
-
-\App::bind('acme_payment.gateway.stripe_checkout', function($app) {
-    /** @var \Payum\Core\Registry\RegistryInterface $payum */
-    $payum = $app['payum'];
-
-    return $payum->getGatewayFactory('stripe_checkout')->create([
-        'publishable_key' => $_SERVER['payum.stripe.publishable_key'],
-        'secret_key' => $_SERVER['payum.stripe.secret_key'],
-    ]);
-});
-
-\App::bind('acme_payment.gateway.stripe_omnipay', function($app) {
-    /** @var \Payum\Core\Registry\RegistryInterface $payum */
-    $payum = $app['payum'];
-
-    return $payum->getGatewayFactory('omnipay_direct')->create([
-        'type' => 'Stripe',
-        'options' => array(
-            'apiKey' => $_SERVER['payum.stripe.secret_key'],
-            'testMode' => true,
-        ),
-    ]);
+        ->addStorage(Payment::class, new \Payum\LaravelPackage\Storage\EloquentStorage(Payment::class))
+    ;
 });
 
 return $app;
